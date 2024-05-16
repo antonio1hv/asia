@@ -111,15 +111,20 @@
                 score++;
                 document.getElementById('result').innerHTML = '<span class="correct">¡Correcto!</span>';
                 selectedMarker.setIcon(correctIcon);
-                setTimeout(() => document.getElementById('result').innerHTML = '', 2000);
             } else {
                 incorrectCount++;
-                document.getElementById('result').innerHTML = '<span class="incorrect">Incorrecto. La capital de ' + country + ' es ' + result.capital + '</span>';
-                document.getElementById('result').style.color = 'red';
+                let message = 'Incorrecto. ';
+                if (!result.correct_name && !result.correct_location) {
+                    message += `La capital de ${country} es ${result.capital} y la ubicación correcta está marcada.`;
+                } else if (!result.correct_name) {
+                    message += `La capital de ${country} es ${result.capital}.`;
+                } else {
+                    message += 'La ubicación es incorrecta y la correcta está marcada.';
+                }
+                document.getElementById('result').innerHTML = `<span class="incorrect">${message}</span>`;
                 // Mostrar marcador de la capital correcta
                 const correctCoords = countriesAndCapitals[country].coords;
                 L.marker(correctCoords, { icon: correctIcon }).addTo(map);
-                setTimeout(() => document.getElementById('result').innerHTML = '', 2000);
             }
             currentQuestionIndex++;
             updateScore();
@@ -139,7 +144,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             map = L.map('map').setView([34.0479, 100.6197], 4);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
