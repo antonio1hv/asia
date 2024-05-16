@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica de Capitales de Asia</title>
+    <script>
+        async function checkAnswer() {
+            const country = document.getElementById('country').value;
+            const capital = document.getElementById('capital').value;
+            const response = await fetch('/check', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ country, capital })
+            });
+            const result = await response.json();
+            if (result.correct) {
+                alert('¡Correcto!');
+            } else {
+                alert(`¡Incorrecto! La capital de ${country} es ${result.capital}`);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Práctica de Capitales de Asia</h1>
+    <label for="country">Selecciona un país:</label>
+    <select id="country">
+        {% for country in countries %}
+        <option value="{{ country }}">{{ country }}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <label for="capital">Introduce la capital:</label>
+    <input type="text" id="capital">
+    <br>
+    <button onclick="checkAnswer()">Verificar</button>
+    <br>
+    <a href="/map">Ver Mapa</a>
+</body>
+</html>
+
