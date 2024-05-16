@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import random
+import math
 
 app = Flask(__name__)
 
@@ -56,6 +57,9 @@ countries_and_capitals = {
     "Yemen": {"capital": "Saná", "coords": [15.3694, 44.1910]}
 }
 
+def is_close(coords1, coords2, tolerance=0.5):
+    return math.sqrt((coords1[0] - coords2[0]) ** 2 + (coords1[1] - coords2[1]) ** 2) <= tolerance
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -74,7 +78,11 @@ def check_answer():
     data = request.get_json()
     country = data['country']
     capital = data['capital'].strip()
-    correct = countries_and_capitals.get(country, {}).get('capital') == capital
+    coords = data['coords']
+    correct = (
+        countries_and_capitals.get(country, {}).get('capital') == capital and
+        is_close(countries_and_capitals.get(country, {}).get('coords'), coords)
+    )
     return jsonify({"correct": correct, "capital": countries_and_capitals.get(country, {}).get('capital')})
 
 if __name__ == '__main__':

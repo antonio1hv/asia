@@ -15,7 +15,7 @@
     <input type="text" id="answer">
     <button onclick="checkAnswer()">Verificar</button>
     <br><br>
-    <a href="/map" target="_blank">Ver Mapa</a>
+    <div id="result"></div>
 
     <script>
         let questions = [];
@@ -23,6 +23,7 @@
         let score = 0;
         let map;
         let countriesAndCapitals;
+        let selectedMarker = null;
 
         async function startRound() {
             const response = await fetch('/start_round');
@@ -36,21 +37,27 @@
             if (currentQuestionIndex < questions.length) {
                 document.getElementById('question').innerText = `¿Cuál es la capital de ${questions[currentQuestionIndex]}?`;
                 document.getElementById('answer').value = '';
+                selectedMarker = null;
             } else {
-                alert(`Ronda terminada. Tu puntuación es: ${score} de ${questions.length}`);
+                document.getElementById('result').innerText = `Ronda terminada. Tu puntuación es: ${score} de ${questions.length}`;
                 startRound();
             }
         }
 
         async function checkAnswer() {
+            if (!selectedMarker) {
+                alert('Por favor selecciona un punto en el mapa.');
+                return;
+            }
             const country = questions[currentQuestionIndex];
             const capital = document.getElementById('answer').value;
+            const coords = selectedMarker.getLatLng();
             const response = await fetch('/check_answer', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ country, capital })
+                body: JSON.stringify({ country, capital, coords: [coords.lat, coords.lng] })
             });
             const result = await response.json();
             if (result.correct) {
@@ -64,23 +71,30 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            startRound();
             map = L.map('map').setView([34.0479, 100.6197], 4);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            // Obtener los datos de los países y capitales
             fetch('/countries_and_capitals')
                 .then(response => response.json())
                 .then(data => {
                     countriesAndCapitals = data;
                     Object.keys(countriesAndCapitals).forEach(country => {
                         const coords = countriesAndCapitals[country].coords;
-                        L.marker(coords).addTo(map);
+                        const marker = L.marker(coords).addTo(map);
+                        marker.on('click', () => {
+                            if (selectedMarker) {
+                                selectedMarker.setIcon(L.icon({iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png'}));
+                            }
+                            selectedMarker = marker;
+                            selectedMarker.setIcon(L.icon({iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-red.png'}));
+                        });
                     });
                 });
+
+            startRound();
         });
     </script>
 </body>
