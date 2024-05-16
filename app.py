@@ -59,7 +59,7 @@ countries_and_capitals = {
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', countries=countries_and_capitals)
 
 @app.route('/start_round')
 def start_round():
@@ -71,9 +71,7 @@ def check_answer():
     data = request.get_json()
     country = data['country']
     capital = data['capital'].strip()
-    coords = data['coords']
-    correct = (countries_and_capitals.get(country, {}).get('capital') == capital and
-               countries_and_capitals.get(country, {}).get('coords') == coords)
+    correct = countries_and_capitals.get(country, {}).get('capital') == capital
     return jsonify({"correct": correct, "capital": countries_and_capitals.get(country, {}).get('capital')})
 
 @app.route('/map')

@@ -4,7 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Práctica de Capitales de Asia</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Práctica de Capitales de Asia</h1>
+    <div id="map" style="height: 500px;"></div>
+    <p id="question"></p>
+    <input type="text" id="answer">
+    <button onclick="checkAnswer()">Verificar</button>
+    <br><br>
+    <a href="/map" target="_blank">Ver Mapa</a>
+
     <script>
         let questions = [];
         let currentQuestionIndex = 0;
@@ -32,13 +44,12 @@
         async function checkAnswer() {
             const country = questions[currentQuestionIndex];
             const capital = document.getElementById('answer').value;
-            const coords = map.getCenter();  // Obtén las coordenadas del centro del mapa
             const response = await fetch('/check_answer', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ country, capital, coords: [coords.lat, coords.lng] })
+                body: JSON.stringify({ country, capital })
             });
             const result = await response.json();
             if (result.correct) {
@@ -58,17 +69,16 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
+
+            // Añadir marcadores al mapa
+            fetch('/start_round').then(response => response.json()).then(countries => {
+                countries.forEach(country => {
+                    const coords = countries_and_capitals[country].coords;
+                    L.marker(coords).addTo(map);
+                });
+            });
         });
     </script>
-</head>
-<body>
-    <h1>Práctica de Capitales de Asia</h1>
-    <div id="map" style="height: 500px;"></div>
-    <p id="question"></p>
-    <input type="text" id="answer">
-    <button onclick="checkAnswer()">Verificar</button>
-    <br><br>
-    <a href="/map" target="_blank">Ver Mapa</a>
 </body>
 </html>
 
