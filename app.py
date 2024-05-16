@@ -79,10 +79,16 @@ def check_answer():
     country = data['country']
     capital = data['capital'].strip()
     coords = data['coords']
-    correct_name = countries_and_capitals.get(country, {}).get('capital') == capital
-    correct_location = is_close(countries_and_capitals.get(country, {}).get('coords'), coords)
-    correct = correct_name and correct_location
-    return jsonify({"correct": correct, "correct_name": correct_name, "correct_location": correct_location, "capital": countries_and_capitals.get(country, {}).get('capital')})
+    capital_correct = countries_and_capitals.get(country, {}).get('capital') == capital
+    coords_correct = is_close(countries_and_capitals.get(country, {}).get('coords'), coords)
+    correct = capital_correct and coords_correct
+    return jsonify({
+        "correct": correct,
+        "capitalCorrect": capital_correct,
+        "coordsCorrect": coords_correct,
+        "capital": countries_and_capitals.get(country, {}).get('capital'),
+        "coords": countries_and_capitals.get(country, {}).get('coords')
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)

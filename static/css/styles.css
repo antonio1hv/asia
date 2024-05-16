@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-
 body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
@@ -73,23 +71,6 @@ button:hover {
     margin: 10px 0;
 }
 
-#result .correct {
-    color: green;
-    animation: fadeInOut 2s;
-}
-
-#result .incorrect {
-    color: red;
-    animation: fadeInOut 2s;
-}
-
-@keyframes fadeInOut {
-    0% { opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
 #progress-container {
     width: 100%;
     background-color: #e0e0e0;
@@ -104,12 +85,30 @@ button:hover {
     border-radius: 25px;
 }
 
-.score-container {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 20px;
+/* Iconos personalizados para los puntos */
+.default-marker {
+    background-color: #add8e6; /* Azul pastel */
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 }
 
-.score-container p {
-    font-size: 1.2em;
+.selected-marker {
+    background-color: #ffb6c1; /* Rojo pastel */
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.correct-marker {
+    background-color: #98fb98; /* Verde pastel */
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 }

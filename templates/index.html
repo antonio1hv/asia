@@ -7,6 +7,34 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="/static/css/styles.css">
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        .default-marker {
+            background-color: #ADD8E6;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        .selected-marker {
+            background-color: #FFB6C1;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        .correct-marker {
+            background-color: #98FB98;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -21,47 +49,33 @@
         <div id="progress-container">
             <div id="progress-bar"></div>
         </div>
-        <div class="score-container">
-            <p>Correctas: <span id="correct-count">0</span></p>
-            <p>Incorrectas: <span id="incorrect-count">0</span></p>
-        </div>
     </div>
 
     <script>
         let questions = [];
         let currentQuestionIndex = 0;
         let score = 0;
-        let incorrectCount = 0;
         let map;
         let countriesAndCapitals;
         let selectedMarker = null;
         let markers = [];
-        
-        const defaultIcon = L.icon({
-            iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-            shadowSize: [41, 41]
+
+        const defaultIcon = L.divIcon({
+            className: 'default-marker',
+            iconSize: [10, 10],
+            iconAnchor: [5, 5]
         });
 
-        const selectedIcon = L.icon({
-            iconUrl: '/static/images/marker-icon-red.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-            shadowSize: [41, 41]
+        const selectedIcon = L.divIcon({
+            className: 'selected-marker',
+            iconSize: [10, 10],
+            iconAnchor: [5, 5]
         });
 
-        const correctIcon = L.icon({
-            iconUrl: '/static/images/marker-icon-green.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-            shadowSize: [41, 41]
+        const correctIcon = L.divIcon({
+            className: 'correct-marker',
+            iconSize: [10, 10],
+            iconAnchor: [5, 5]
         });
 
         async function startRound() {
@@ -69,8 +83,6 @@
             questions = await response.json();
             currentQuestionIndex = 0;
             score = 0;
-            incorrectCount = 0;
-            updateScore();
             nextQuestion();
             updateProgress();
         }
@@ -94,6 +106,7 @@
         async function checkAnswer() {
             if (!selectedMarker) {
                 document.getElementById('result').innerText = 'Por favor selecciona un punto en el mapa.';
+                document.getElementById('result').style.color = 'red';
                 return;
             }
             const country = questions[currentQuestionIndex];
@@ -107,27 +120,24 @@
                 body: JSON.stringify({ country, capital, coords: [coords.lat, coords.lng] })
             });
             const result = await response.json();
+            let message = '';
             if (result.correct) {
                 score++;
-                document.getElementById('result').innerHTML = '<span class="correct">¡Correcto!</span>';
                 selectedMarker.setIcon(correctIcon);
+                message = '¡Correcto!';
+                document.getElementById('result').style.color = 'green';
             } else {
-                incorrectCount++;
-                let message = 'Incorrecto. ';
-                if (!result.correct_name && !result.correct_location) {
-                    message += `La capital de ${country} es ${result.capital} y la ubicación correcta está marcada.`;
-                } else if (!result.correct_name) {
-                    message += `La capital de ${country} es ${result.capital}.`;
+                if (!result.capitalCorrect && !result.coordsCorrect) {
+                    message = `Incorrecto. La capital de ${country} es ${result.capital}, y la ubicación correcta está en ${result.coords}`;
+                } else if (!result.capitalCorrect) {
+                    message = `Incorrecto. La capital de ${country} es ${result.capital}`;
                 } else {
-                    message += 'La ubicación es incorrecta y la correcta está marcada.';
+                    message = `Incorrecto. La ubicación correcta está en ${result.coords}`;
                 }
-                document.getElementById('result').innerHTML = `<span class="incorrect">${message}</span>`;
-                // Mostrar marcador de la capital correcta
-                const correctCoords = countriesAndCapitals[country].coords;
-                L.marker(correctCoords, { icon: correctIcon }).addTo(map);
+                document.getElementById('result').style.color = 'red';
             }
+            document.getElementById('result').innerText = message;
             currentQuestionIndex++;
-            updateScore();
             nextQuestion();
         }
 
@@ -136,15 +146,10 @@
             document.getElementById('progress-bar').style.width = `${progress}%`;
         }
 
-        function updateScore() {
-            document.getElementById('correct-count').innerText = score;
-            document.getElementById('incorrect-count').innerText = incorrectCount;
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             map = L.map('map').setView([34.0479, 100.6197], 4);
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
