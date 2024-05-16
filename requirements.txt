@@ -1,3 +1,4 @@
 Flask
 folium
-
+render_template
+jsonify
