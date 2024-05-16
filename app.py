@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, make_response
 import folium
+import io
 
 app = Flask(__name__)
 
@@ -73,8 +74,15 @@ def create_map():
     m = folium.Map(location=[34.0479, 100.6197], zoom_start=4)
     for country, capital in countries_and_capitals.items():
         folium.Marker(location=[34.0479, 100.6197], popup=f"{country}: {capital}").add_to(m)
-    m.save("templates/asia_map.html")
-    return render_template('asia_map.html')
+
+    # Crear un archivo temporal en memoria para guardar el mapa
+    map_data = io.BytesIO()
+    m.save(map_data, close_file=False)
+    map_data.seek(0)
+
+    response = make_response(map_data.getvalue())
+    response.headers['Content-Type'] = 'text/html'
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True)
