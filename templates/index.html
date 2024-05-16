@@ -22,6 +22,7 @@
         let currentQuestionIndex = 0;
         let score = 0;
         let map;
+        let countriesAndCapitals;
 
         async function startRound() {
             const response = await fetch('/start_round');
@@ -70,13 +71,16 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            // Añadir marcadores al mapa
-            fetch('/start_round').then(response => response.json()).then(countries => {
-                countries.forEach(country => {
-                    const coords = countries_and_capitals[country].coords;
-                    L.marker(coords).addTo(map);
+            // Obtener los datos de los países y capitales
+            fetch('/countries_and_capitals')
+                .then(response => response.json())
+                .then(data => {
+                    countriesAndCapitals = data;
+                    Object.keys(countriesAndCapitals).forEach(country => {
+                        const coords = countriesAndCapitals[country].coords;
+                        L.marker(coords).addTo(map);
+                    });
                 });
-            });
         });
     </script>
 </body>

@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify
-import folium
 import random
 
 app = Flask(__name__)
@@ -59,7 +58,11 @@ countries_and_capitals = {
 
 @app.route('/')
 def index():
-    return render_template('index.html', countries=countries_and_capitals)
+    return render_template('index.html')
+
+@app.route('/countries_and_capitals')
+def countries_and_capitals_endpoint():
+    return jsonify(countries_and_capitals)
 
 @app.route('/start_round')
 def start_round():
@@ -73,15 +76,6 @@ def check_answer():
     capital = data['capital'].strip()
     correct = countries_and_capitals.get(country, {}).get('capital') == capital
     return jsonify({"correct": correct, "capital": countries_and_capitals.get(country, {}).get('capital')})
-
-@app.route('/map')
-def create_map():
-    m = folium.Map(location=[34.0479, 100.6197], zoom_start=4)
-    for country, info in countries_and_capitals.items():
-        folium.Marker(location=info['coords']).add_to(m)
-
-    map_html = m._repr_html_()
-    return render_template('map.html', map_html=map_html)
 
 if __name__ == '__main__':
     app.run(debug=True)
