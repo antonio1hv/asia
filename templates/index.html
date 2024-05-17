@@ -11,7 +11,7 @@
 <body>
     <div class="container">
         <h1>Práctica de Capitales de Asia</h1>
-        <div id="map" style="height: 500px;"></div>
+        <div id="map"></div>
         <div class="info-container">
             <p id="question"></p>
             <input type="text" id="answer" placeholder="Escribe la capital">
@@ -34,20 +34,20 @@
 
         const defaultIcon = L.divIcon({
             className: 'default-marker',
-            iconSize: [10, 10],
-            iconAnchor: [5, 5]
+            iconSize: [12, 12],
+            iconAnchor: [6, 6]
         });
 
         const selectedIcon = L.divIcon({
             className: 'selected-marker',
-            iconSize: [10, 10],
-            iconAnchor: [5, 5]
+            iconSize: [12, 12],
+            iconAnchor: [6, 6]
         });
 
         const correctIcon = L.divIcon({
             className: 'correct-marker',
-            iconSize: [10, 10],
-            iconAnchor: [5, 5]
+            iconSize: [12, 12],
+            iconAnchor: [6, 6]
         });
 
         async function startRound() {
@@ -100,11 +100,11 @@
                 document.getElementById('result').style.color = 'green';
             } else {
                 if (!result.capitalCorrect && !result.coordsCorrect) {
-                    message = `Incorrecto. La capital de ${country} es ${result.capital}, y la ubicación correcta está en ${result.coords}`;
+                    message = `Incorrecto. La capital de ${country} es ${result.capital}, y la ubicación correcta está en (${result.coords[0]}, ${result.coords[1]})`;
                 } else if (!result.capitalCorrect) {
                     message = `Incorrecto. La capital de ${country} es ${result.capital}`;
                 } else {
-                    message = `Incorrecto. La ubicación correcta está en ${result.coords}`;
+                    message = `Incorrecto. La ubicación correcta está en (${result.coords[0]}, ${result.coords[1]})`;
                 }
                 document.getElementById('result').style.color = 'red';
             }
