@@ -89,7 +89,7 @@ button:hover {
 
 /* Iconos personalizados para los puntos */
 .default-marker {
-    background-color: #add8e6; /* Azul pastel */
+    background-color: #8A2BE2; /* Violeta vivo */
     width: 12px;
     height: 12px;
     border-radius: 50%;
@@ -98,7 +98,7 @@ button:hover {
 }
 
 .selected-marker {
-    background-color: #ffb6c1; /* Rojo pastel */
+    background-color: #FF1493; /* Rojo vivo */
     width: 12px;
     height: 12px;
     border-radius: 50%;
@@ -107,7 +107,16 @@ button:hover {
 }
 
 .correct-marker {
-    background-color: #98fb98; /* Verde pastel */
+    background-color: #00FF00; /* Verde vivo */
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.incorrect-marker {
+    background-color: #FF4500; /* Rojo vivo */
     width: 12px;
     height: 12px;
     border-radius: 50%;
